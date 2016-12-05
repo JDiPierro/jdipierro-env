@@ -1,0 +1,68 @@
+# General
+alias c="/usr/bin/clear" # Typing the whole word is annoying
+alias clear="echo 'You just typed way too many letter! Next time just use c'"
+alias rzsh="source ~/.zshrc"
+alias editaliases="vi ~/.aliases"
+alias editzsh="vi ~/.zshrc"
+alias fuck='$(thefuck $(fc -ln -1))'
+alias edit="open -a MacVim.app $1"
+function anon_ssh() {
+  ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $1;
+}
+
+# iTerm 2
+# Press      ⌘,     to reach the preferences when iTerm is hidden from the OS.
+
+# Git
+alias gs="git status"
+alias gd="git diff"
+alias gc="git commit -m"
+alias gcm="git commit -m"
+alias gaa="git add -A ."
+alias gpr="git pull --rebase"
+alias gprp="git pull --rebase && git push"
+alias gaamend="git add -A . && git commit --amend --no-edit"
+alias gmend="git commit --amend --no-edit"
+alias gback="git reset --soft HEAD~1"
+alias glast="git log -3 --graph --pretty=tformat:'%C(bold blue)<%an> %Cgreen(%cr)%Creset - %Cred%h%Creset -%C(yellow)%d%n%Creset    %s' --abbrev-commit --date=relative | cat"
+alias use_the_force="git push --force"
+alias gundo="git reset HEAD@{1}"
+
+# Vagrant
+alias v="time vagrant status"
+alias vsh="time vagrant ssh"
+alias vkill="time vagrant halt"
+alias vnuke="time vagrant destroy -f"
+alias vup="time vagrant up"
+alias vpro="time vagrant provision"
+alias vsalt="time vagrant provision"
+alias vrunning="vagrant status | grep running"
+alias vsnap="vagrant snapshot take"
+alias vback="vagrant snapshot back"
+function vphoenix() {
+  vnuke $1;
+  vup $1;
+}
+
+# salt
+alias saltping="sudo salt '*' test.ping"
+alias salt='time sudo salt'
+alias salt-run='time sudo salt-run'
+alias salt-call='time sudo salt-call'
+alias salt-cloud='time sudo salt-cloud'
+
+# Python
+alias mkvenv='mkvirtualenv'
+alias sniff='nosetests'
+
+# Packer
+function pack(){
+  JSONFILE=$1
+  shift
+  jq '.["post-processors"][0] |= map(select(.type != "vagrant-gs"))' ${JSONFILE} | packer build -force $@ -
+}
+
+# Terraform
+alias tp="terraform plan"
+alias ta="terraform apply"
+
