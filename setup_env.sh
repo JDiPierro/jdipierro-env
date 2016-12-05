@@ -8,21 +8,38 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function install() {
   PKG=$1
-  if [ ! -z "$2" ] && [ $? ]; then
+  if [ "$2" == "1" ] && [ $? ]; then
     debug "${PKG} detected by custom test"
     return
+  elif [ "$2" == "2" ]; then
+    debug "Skipping check"
   elif which ${PKG} > /dev/null 2>&1; then
     debug "${PKG} detected by which"
     return
   fi
   echo "Installing ${PKG}..."
-  case uname in
+  case $(uname -a) in
     Darwin )
       brew install ${PKG} > /dev/null 2>&1;;
+    *fc[0-9][0-9]* )
+      sudo yum install -y ${PKG} > /dev/null 2>&1;;
+    * )
+      echo "ERROR: Don't know how to install on this system."
+      exit 1;;
   esac
   if [ "$?" ]; then
     debug "Error installing ${PKG}. Please attempt to fix manually."
     exit 1
+  fi
+}
+
+function install_hosted() {
+  HOSTED_PKG=$1
+  GIT_URL=$2
+  mkdir -p ${DIR}/hosted
+  if [ ! -d "${DIR}/hosted/${HOSTED_PKG}" ]; then
+    echo "Installing ${HOSTED_PKG}..."
+    git clone ${GIT_URL} ${DIR}/hosted/${HOSTED_PKG} >/dev/null 2>&1
   fi
 }
 
@@ -42,11 +59,9 @@ if ! [ -d ~/.oh-my-zsh/ ]; then
   echo "Installing custom ZSH theme..."
   cp ${DIR}/files/jdipierro.zsh-theme ~/.oh-my-zsh/themes/
 fi
-#brew info zsh-syntax-highlighting | grep Poured >/dev/null 2>&1
-install zsh-syntax-highlighting 1
 install thefuck
-#brew info zsh-syntax-highlighting | grep Built >/dev/null 2>&1
-install z 1
+install_hosted z https://github.com/rupa/z.git
+install_hosted zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting.git
 
 echo "Setting custom ZSHRC..."
 cat > ~/.zshrc <<- EOM
@@ -68,10 +83,10 @@ cat << EOM
 :@.  3k@E2P; /!J@.      ..,, J@)   ;F           ;F ,,gm@F          J@P
  @L   SE@F :.;BJ@.         ;^={@g#UE          ,gCg#F@ .@.         ,}E
  J@k.gB@@Qgg@P.2E         ,.c=@E SE325BBESpP*^;,,@P5Qp*         .@EP
- J@.   JBJE  :@S.       f^  ,P4@. ^Q2vuDgP;,;xZ2gBP*;           4@.
-  ^S@@BP.@.  ;F@L         <*   ;*Bp@De,      ;@E;;^c.            @L
+ J@.   JBJE  :@S.       f^  ,P4@. ^Q2vuDgP;,;xZ2gBP*; ^-        4@.
+  ^S@@BP.@.  ;F@L         <*   ;*Bp@De,      ;@E;;^c.._          @L
    SL  ;D^SL   J@.                 ^@.;*%@NP*;;;@gg.             QX.
-   ^0BMP  ^@.   ^@L                 ^@@gp,,gBP^;                  S@L
+   ^0BMP  ^@.   ^@L                 ^@@gp,,gBP^;    ^.            S@L
            J@     ^Q.                  ,@P;                      ;J@
             @.      ?@.              ,@P;                        JFI.
             @L       ^B@@BBB@@@pgw,gB*                            @#
