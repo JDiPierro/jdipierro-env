@@ -1,75 +1,6 @@
 #!/usr/bin/env bash
 
-DEBUG=
-function debug() { if [ "${DEBUG}" ]; then echo $1; fi }
-debug "Debugging Enabled"
-
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-function install() {
-  PKG=$1
-  if [ "$2" == "1" ] && [ $? ]; then
-    debug "${PKG} detected by custom test"
-    return
-  elif [ "$2" == "2" ]; then
-    debug "Skipping check"
-  elif which ${PKG} > /dev/null 2>&1; then
-    debug "${PKG} detected by which"
-    return
-  fi
-  echo "Installing ${PKG}..."
-  case $(uname -a) in
-    Darwin )
-      brew install ${PKG} > /dev/null 2>&1;;
-    *fc[0-9][0-9]* )
-      sudo yum install -y ${PKG} > /dev/null 2>&1;;
-    * )
-      echo "ERROR: Don't know how to install on this system."
-      exit 1;;
-  esac
-  if [ "$?" ]; then
-    debug "Error installing ${PKG}. Please attempt to fix manually."
-    exit 1
-  fi
-}
-
-function install_hosted() {
-  HOSTED_PKG=$1
-  GIT_URL=$2
-  mkdir -p ${DIR}/hosted
-  if [ ! -d "${DIR}/hosted/${HOSTED_PKG}" ]; then
-    echo "Installing ${HOSTED_PKG}..."
-    git clone ${GIT_URL} ${DIR}/hosted/${HOSTED_PKG} >/dev/null 2>&1
-  fi
-}
-
-# Make sure Homebrew is installed if we're on a mac.
-if [ "$(uname)" == "Darwin" ]; then
-  if ! brew --version > /dev/null 2>&1; then
-    echo "Installing Homebrew..."
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" > /dev/null 2>&1
-  fi
-fi
-
-# Set up awesome things
-install zsh
-if ! [ -d ~/.oh-my-zsh/ ]; then
-  echo "Installing oh-my-zsh..."
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
-  echo "Installing custom ZSH theme..."
-  cp ${DIR}/files/jdipierro.zsh-theme ~/.oh-my-zsh/themes/
-fi
-install thefuck
-install_hosted z https://github.com/rupa/z.git
-install_hosted zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting.git
-
-echo "Setting custom ZSHRC..."
-cat > ~/.zshrc <<- EOM
-  source ${DIR}/zshrc
-  source ${DIR}/aliases
-EOM
-
-cat << EOM
+cat <<EOM
                                             ,,_
                                 g@L  ,     ,J@[Q@.,,gD*%k        ,,
                                J@QFS@*%kw#SE@p ;; @P    ?@,    ,@E2k
@@ -107,4 +38,96 @@ cat << EOM
                             ^QL                         ^QL    Jk       .@F
                               %L                          SL ,,J@.     .@F
                                3@.                         %@F;3S     ,@F
+FerretWithASpork's Environment Initializer
 EOM
+
+DEBUG=
+function debug() { if [ "${DEBUG}" ]; then msg $1; fi }
+debug "Debugging Enabled"
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+function msg() {
+  echo $1 | tee -a ${DIR}/run.log
+}
+
+function install() {
+  PKG=$1
+  if [ "$2" == "1" ] && [ $? ]; then
+    debug "${PKG} detected by custom test"
+    return
+  elif [ "$2" == "2" ]; then
+    debug "Skipping check"
+  elif which ${PKG} > /dev/null 2>&1; then
+    debug "${PKG} detected by which"
+    return
+  fi
+  msg "Installing ${PKG}..."
+  case $(uname -a) in
+    Darwin )
+      brew install ${PKG} > /dev/null 2>&1;;
+    *fc[0-9][0-9]* )
+      sudo yum install -y ${PKG} > /dev/null 2>&1;;
+    * )
+      msg "ERROR: Don't know how to install on this system."
+      exit 1;;
+  esac
+  if [ "$?" ]; then
+    debug "Error installing ${PKG}. Please attempt to fix manually."
+    exit 1
+  fi
+}
+
+function install_hosted() {
+  HOSTED_PKG=$1
+  GIT_URL=$2
+  mkdir -p ${DIR}/hosted
+  if [ ! -d "${DIR}/hosted/${HOSTED_PKG}" ]; then
+    msg "Installing ${HOSTED_PKG}..."
+    git clone ${GIT_URL} ${DIR}/hosted/${HOSTED_PKG} >/dev/null 2>&1
+  fi
+}
+
+############
+### MAIN ###
+############
+
+# Delete last run log
+rm run.log >/dev/null 2>&1
+
+# Make sure Homebrew is installed if we're on a mac.
+if [ "$(uname)" == "Darwin" ]; then
+  if ! brew --version > /dev/null 2>&1; then
+    msg "Installing Homebrew..."
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" > /dev/null 2>&1
+  fi
+fi
+
+# Set up awesome things
+install zsh
+if ! [ -d ~/.oh-my-zsh/ ]; then
+  msg "Installing oh-my-zsh..."
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+  msg "Installing custom ZSH theme..."
+  cp ${DIR}/files/jdipierro.zsh-theme ~/.oh-my-zsh/themes/
+fi
+install thefuck
+install_hosted z https://github.com/rupa/z.git
+install_hosted zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting.git
+
+msg "Redirecting zshrc to our git-managed file..."
+cat > ~/.zshrc <<- EOM
+  source ${DIR}/zshrc
+  source ${DIR}/aliases
+EOM
+
+if [ ! -e "~/.gitignore" ]; then
+  msg "Setting up global gitignore..."
+  cat > ~/.gitignore <<-EOM
+    # IntelliJ Project files
+    *.iml
+    .idea/
+EOM
+fi
+
+echo "--__--**^^**--__-- Finished setting up the environment! --__--**^^**--__--"
