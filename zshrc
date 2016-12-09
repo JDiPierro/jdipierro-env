@@ -8,11 +8,10 @@ plugins=(git)
 
 source $ZSH/oh-my-zsh.sh
 
-# User configuration
-
-export GOPATH="/Users/jdipierro/Source/gopath"
-export PATH="$PATH:/Users/jdipierro/Source/gopath/bin"
+export GOPATH="/home/justin/Source/gopath"
+export PATH="$PATH:/home/justin/Source/gopath/bin"
 export GROOVY_HOME="/usr/local/opt/groovy/libexec"
+export VAGRANT_DEFAULT_PROVIDER="virtualbox"
 
 eval "$(thefuck --alias)"
 source ${HOSTED_DIR}/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 cat <<EOM
+FerretWithASpork's Environment Initializer
                                             ,,_
                                 g@L  ,     ,J@[Q@.,,gD*%k        ,,
                                J@QFS@*%kw#SE@p ;; @P    ?@,    ,@E2k
@@ -38,7 +39,6 @@ cat <<EOM
                             ^QL                         ^QL    Jk       .@F
                               %L                          SL ,,J@.     .@F
                                3@.                         %@F;3S     ,@F
-FerretWithASpork's Environment Initializer
 EOM
 
 DEBUG=
@@ -66,7 +66,7 @@ function install() {
   case $(uname -a) in
     Darwin )
       brew install ${PKG} > /dev/null 2>&1;;
-    *fc[0-9][0-9]* )
+    *fc[0-9][0-9]* )  # Fedora
       sudo yum install -y ${PKG} > /dev/null 2>&1;;
     * )
       msg "ERROR: Don't know how to install on this system."
@@ -93,7 +93,7 @@ function install_hosted() {
 ############
 
 # Delete last run log
-rm run.log >/dev/null 2>&1
+rm -rf log/ > /dev/null 2>&1
 
 # Make sure Homebrew is installed if we're on a mac.
 if [ "$(uname)" == "Darwin" ]; then
