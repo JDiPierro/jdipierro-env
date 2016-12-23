@@ -62,8 +62,22 @@ bureau_git_prompt () {
   echo $_result
 }
 
+if [ -n "$SSH_CLIENT" ] || [ -n "$SSH_TTY" ]; then
+  REMOTE_SESSION=1
+else
+  case $(ps -o comm= -p $PPID) in
+    sshd|*/sshd) REMOTE_SESSION=1;;
+  esac
+fi
+
+if [ -z "$REMOTE_SESSION" ]; then
+  PROMPT_PREFIX=''
+else
+  PROMPT_PREFIX="%{$fg[cyan]%}$(hostname):%{$reset_color%}"
+fi
+
 PROMPT='
-%{$fg_bold[green]%}${PWD/#$HOME/~}%{$reset_color%}$(bureau_git_prompt) ⌚ %{$fg_bold[red]%}%*%{$reset_color%}
+${PROMPT_PREFIX}%{$fg_bold[green]%}${PWD/#$HOME/~}%{$reset_color%}$(bureau_git_prompt) ⌚ %{$fg_bold[red]%}%*%{$reset_color%}
 $ '
 
 ZSH_THEME_GIT_PROMPT_PREFIX=" on %{$fg[magenta]%}⭠ "
