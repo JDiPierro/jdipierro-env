@@ -68,6 +68,8 @@ function install() {
       brew install ${PKG} > /dev/null 2>&1;;
     *fc[0-9][0-9]* )  # Fedora
       sudo yum install -y ${PKG} > /dev/null 2>&1;;
+    *Ubuntu* ) 
+      sudo apt-get install -y ${PKG} >/dev/null 2>&1;;
     * )
       msg "ERROR: Don't know how to install on this system."
       exit 1;;
