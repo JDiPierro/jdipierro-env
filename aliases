@@ -40,9 +40,14 @@ alias vrunning="vagrant status | grep running"
 alias vsnap="vagrant snapshot take"
 alias vback="vagrant snapshot back"
 function vphoenix() {
-  vnuke $1;
-  vup $1;
+  vnuke $@ &&
+  vup $@
 }
+function vrebuild() {
+  vphoenix $@ &&
+  vsh $@ -c "sudo salt-call state.apply"
+}
+
 
 # salt
 alias saltping="sudo salt '*' test.ping"
@@ -59,10 +64,11 @@ alias sniff='nosetests'
 function pack(){
   JSONFILE=$1
   shift
-  jq '.["post-processors"][0] |= map(select(.type != "vagrant-s3"))' ${JSONFILE} | packer build -force $@ -
+  jq '.["post-processors"][0] |= map(select(.type != "vagrant-gs"))' ${JSONFILE} | packer build -force $@ -
 }
 
 # Terraform
 alias tp="terraform plan"
+alias tpt="terraform plan -target="
 alias ta="terraform apply"
-
+alias tat="terraform apply -target="

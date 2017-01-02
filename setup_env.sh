@@ -41,15 +41,15 @@ FerretWithASpork's Environment Initializer
                                3@.                         %@F;3S     ,@F
 EOM
 
-DEBUG=
-function debug() { if [ "${DEBUG}" ]; then msg $1; fi }
-debug "Debugging Enabled"
-
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 function msg() {
-  echo $1 | tee -a ${DIR}/run.log
+  echo $1 | tee -a ${DIR}/log/run.log
 }
+
+DEBUG=
+function debug() { if [ "${DEBUG}" == "1" ]; then msg $1; fi }
+debug "Debugging Enabled"
 
 function install() {
   PKG=$1
@@ -65,11 +65,14 @@ function install() {
   msg "Installing ${PKG}..."
   case $(uname -a) in
     Darwin )
-      brew install ${PKG} > /dev/null 2>&1;;
+      brew install ${PKG} > log/install_${PKG} 2>&1
+      return $?;;
     *fc[0-9][0-9]* )  # Fedora
-      sudo yum install -y ${PKG} > /dev/null 2>&1;;
-    *Ubuntu* ) 
-      sudo apt-get install -y ${PKG} >/dev/null 2>&1;;
+      sudo yum install -y ${PKG} > log/install_${PKG} 2>&1
+      return $?;;
+    *Ubuntu* )
+      sudo apt-get install -y -o DPkg::Options::=--force-confold "${PKG}" > log/install_${PKG} 2>&1
+      return $?;;
     * )
       msg "ERROR: Don't know how to install on this system."
       exit 1;;
@@ -78,6 +81,7 @@ function install() {
     debug "Error installing ${PKG}. Please attempt to fix manually."
     exit 1
   fi
+  msg "Done, moving on..."
 }
 
 function install_hosted() {
@@ -86,7 +90,7 @@ function install_hosted() {
   mkdir -p ${DIR}/hosted
   if [ ! -d "${DIR}/hosted/${HOSTED_PKG}" ]; then
     msg "Installing ${HOSTED_PKG}..."
-    git clone ${GIT_URL} ${DIR}/hosted/${HOSTED_PKG} >/dev/null 2>&1
+    git clone ${GIT_URL} ${DIR}/hosted/${HOSTED_PKG} > log/install_${HOSTED_PKG} 2>&1
   fi
 }
 
@@ -96,12 +100,13 @@ function install_hosted() {
 
 # Delete last run log
 rm -rf log/ > /dev/null 2>&1
+mkdir log
 
 # Make sure Homebrew is installed if we're on a mac.
 if [ "$(uname)" == "Darwin" ]; then
   if ! brew --version > /dev/null 2>&1; then
     msg "Installing Homebrew..."
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" > /dev/null 2>&1
+    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" > log/install_homebrew 2>&1
   fi
 fi
 
@@ -109,7 +114,7 @@ fi
 install zsh
 if ! [ -d ~/.oh-my-zsh/ ]; then
   msg "Installing oh-my-zsh..."
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" > log/install_ohmyzsh 2>&1
   msg "Installing custom ZSH theme..."
   cp ${DIR}/files/jdipierro.zsh-theme ~/.oh-my-zsh/themes/
 fi
