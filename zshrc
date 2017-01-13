@@ -16,3 +16,5 @@ export VAGRANT_DEFAULT_PROVIDER="virtualbox"
 eval "$(thefuck --alias)"
 source ${HOSTED_DIR}/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 . ${HOSTED_DIR}/z/z.sh
+
+source ${HOME}/.venvburrito/startup.sh

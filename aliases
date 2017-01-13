@@ -9,6 +9,7 @@ alias edit="open -a MacVim.app $1"
 function anon_ssh() {
   ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $1;
 }
+alias showlines="sed -e '/^#/ d' -e '/^\s*$/ d'"
 
 # iTerm 2
 # Press      ⌘,     to reach the preferences when iTerm is hidden from the OS.
@@ -37,6 +38,7 @@ alias vup="vagrant up"
 alias vpro="vagrant provision"
 alias vsalt="vagrant provision"
 alias vrunning="vagrant status | grep running"
+alias voff="vagrant status | grep 'not created'"
 alias vsnap="vagrant snapshot take"
 alias vback="vagrant snapshot back"
 function vphoenix() {

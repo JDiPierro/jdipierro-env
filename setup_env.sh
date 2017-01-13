@@ -122,8 +122,19 @@ install thefuck
 install_hosted z https://github.com/rupa/z.git
 install_hosted zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting.git
 
+# install virtualenv-burrito:
+if ! [ -d ~/.venvburrito ]; then
+  $(curl -sL https://raw.githubusercontent.com/brainsik/virtualenv-burrito/master/virtualenv-burrito.sh | $SHELL > log/install_venvburrito 2>&1)
+fi
+
+msg "Fuck up Pep8"
+cat > ~/.config/flake8 <<-EOM
+  [flake8]
+  ignore: C901, D100, D101, D102, D103, D104, D105, D200, D204, D205, D301, D400, D401, D402, D403, E111, E114, E121, E128, E221, E402, E501, E731, F403, I100, I101, I201, N802
+EOM
+
 msg "Redirecting zshrc to our git-managed file..."
-cat > ~/.zshrc <<- EOM
+cat > ~/.zshrc <<-EOM
   source ${DIR}/zshrc
   source ${DIR}/aliases
 EOM
