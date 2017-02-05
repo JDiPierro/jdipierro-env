@@ -146,6 +146,7 @@ if [ ! -e "~/.gitignore" ]; then
     *.iml
     .idea/
 EOM
+  git config --global core.excludesfile ~/.gitignore
 fi
 
 echo "--__--**^^**--__-- Finished setting up the environment! --__--**^^**--__--"
