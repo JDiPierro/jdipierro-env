@@ -1,15 +1,15 @@
 # General
 alias c="/usr/bin/clear" # Typing the whole word is annoying
-alias clear="echo 'You just typed way too many letter! Next just use c'"
+alias clear="echo 'You just typed way too many letter! Next time just use \'c\'"
 alias rzsh="source ~/.zshrc"
 alias editaliases="vi ~/Source/jdipierro_env/aliases"
 alias editzsh="vi ~/.zshrc"
 alias fuck='$(thefuck $(fc -ln -1))'
-alias edit="open -a MacVim.app $1"
 function anon_ssh() {
   ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $1;
 }
 alias showlines="sed -e '/^#/ d' -e '/^\s*$/ d'"
+alias myssh="cat ~/.ssh/id_rsa.pub"
 
 # iTerm 2
 # Press      ⌘,     to reach the preferences when iTerm is hidden from the OS.
@@ -66,6 +66,7 @@ function pack(){
 }
 
 # Terraform
+alias tf="terraform"
 alias tp="terraform get && terraform plan"
 alias tpt="terraform get && terraform plan -target="
 alias ta="terraform apply"
