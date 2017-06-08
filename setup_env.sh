@@ -64,7 +64,7 @@ function install() {
   fi
   msg "Installing ${PKG}..."
   case $(uname -a) in
-    Darwin )
+    *Darwin* )
       brew install ${PKG} > log/install_${PKG} 2>&1
       return $?;;
     *fc[0-9][0-9]* )  # Fedora
