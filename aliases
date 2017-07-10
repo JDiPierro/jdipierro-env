@@ -71,3 +71,12 @@ alias tp="terraform get && terraform plan"
 alias tpt="terraform get && terraform plan -target="
 alias ta="terraform apply"
 alias tat="terraform apply -target="
+
+# Docker
+alias dc="docker-compose"
+alias dcu="docker-compose up"
+alias dcd="docker-compose down"
+alias dcb="docker-compose build"
+alias dca="docker-compose attach"
+alias dcphoenix="dcd && dcb && dcu"
+alias dcre="dcd && dcu"
