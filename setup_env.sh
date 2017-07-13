@@ -127,17 +127,25 @@ if ! [ -d ~/.venvburrito ]; then
   $(curl -sL https://raw.githubusercontent.com/brainsik/virtualenv-burrito/master/virtualenv-burrito.sh | $SHELL > log/install_venvburrito 2>&1)
 fi
 
-msg "Fuck up Pep8"
-cat > ~/.config/flake8 <<-EOM
+if [ ! -f ~/.config/flake8 ]; then
+  msg "Fuck up Pep8"
+  cat > ~/.config/flake8 <<-EOM
 [flake8]
 ignore: C901, D100, D101, D102, D103, D104, D105, D200, D204, D205, D301, D400, D401, D402, D403, E111, E114, E121, E128, E221, E402, E501, E731, F403, I100, I101, I201, N802
 EOM
+fi
 
 msg "Redirecting zshrc to our git-managed file..."
 cat > ~/.zshrc <<-EOM
 source ${DIR}/zshrc
 source ${DIR}/aliases
 EOM
+
+if [[ $(uname -a) == *Darwin* ]] && [ ! -f ~/Library/KeyBindings/DefaultKeyBinding.dict ]; then
+  msg "Fixing Mac's stupid Home and End keys..."
+  mkdir -p ~/Library/KeyBindings/
+  cp ${DIR}/files/Mac_home_end_keybindings.dict ~/Library/KeyBindings/DefaultKeyBinding.dict
+fi
 
 if [ ! -e "~/.gitignore" ]; then
   msg "Setting up global gitignore..."
@@ -150,3 +158,4 @@ EOM
 fi
 
 echo "--__--**^^**--__-- Finished setting up the environment! --__--**^^**--__--"
+echo "__--__vv**vv__--__      Keep calm and Spork along!      __--__vv**vv__--__"

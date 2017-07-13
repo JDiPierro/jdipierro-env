@@ -11,7 +11,6 @@ source $ZSH/oh-my-zsh.sh
 export VAGRANT_DEFAULT_PROVIDER="virtualbox"
 export HOMEBREW_GITHUB_API_TOKEN="681af376ca1b63ec3e606a32bc60baf484fb1716"
 
-eval "$(thefuck --alias)"
 source ${HOSTED_DIR}/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 . ${HOSTED_DIR}/z/z.sh
 
