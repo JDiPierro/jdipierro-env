@@ -4,7 +4,7 @@ export ZSH=${HOME}/.oh-my-zsh
 ZSH_THEME="jdipierro"
 COMPLETION_WAITING_DOTS="true"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
-plugins=(git)
+plugins=(git autoenv docker python)
 
 source $ZSH/oh-my-zsh.sh
 
@@ -15,3 +15,7 @@ source ${HOSTED_DIR}/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 . ${HOSTED_DIR}/z/z.sh
 
 source ${HOME}/.venvburrito/startup.sh
+
+if [[ -f ${HOME}/.aliases ]]; then
+  source ${HOME}/.aliases
+fi

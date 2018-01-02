@@ -103,7 +103,7 @@ rm -rf log/ > /dev/null 2>&1
 mkdir log
 
 # Make sure Homebrew is installed if we're on a mac.
-if [ "$(uname)" == "Darwin" ]; then
+if [ $(uname) == *Darwin* ]; then
   if ! brew --version > /dev/null 2>&1; then
     msg "Installing Homebrew..."
     /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" > log/install_homebrew 2>&1
@@ -118,9 +118,10 @@ if ! [ -d ~/.oh-my-zsh/ ]; then
   msg "Installing custom ZSH theme..."
   cp ${DIR}/files/jdipierro.zsh-theme ~/.oh-my-zsh/themes/
 fi
+install zsh-syntax-highlighting
+install autoenv
 install thefuck
-install_hosted z https://github.com/rupa/z.git
-install_hosted zsh-syntax-highlighting https://github.com/zsh-users/zsh-syntax-highlighting.git
+install z
 
 # install virtualenv-burrito:
 if ! [ -d ~/.venvburrito ]; then
@@ -135,11 +136,13 @@ ignore: C901, D100, D101, D102, D103, D104, D105, D200, D204, D205, D301, D400, 
 EOM
 fi
 
-msg "Redirecting zshrc to our git-managed file..."
-cat > ~/.zshrc <<-EOM
+if ! cat ~/.zshrc | grep ${DIR} >/dev/null ; then
+  msg "Redirecting zshrc to our git-managed file..."
+  cat > ~/.zshrc <<-EOM
 source ${DIR}/zshrc
 source ${DIR}/aliases
 EOM
+fi
 
 if [[ $(uname -a) == *Darwin* ]] && [ ! -f ~/Library/KeyBindings/DefaultKeyBinding.dict ]; then
   msg "Fixing Mac's stupid Home and End keys..."
@@ -153,8 +156,18 @@ if [ ! -e "~/.gitignore" ]; then
 # IntelliJ Project files
 *.iml
 .idea/
+
+# Stupid mac file
+.DS_Store
 EOM
   git config --global core.excludesfile ~/.gitignore
+  git config --global user.name Justin Dipierro
+  git config --global user.email dipierroj@gmail.com
+fi
+
+if [ ! -e "~/.curlrc" ]; then
+  echo "Configuring Curl..."
+  echo '-w "\n"' > ~/.curlrc
 fi
 
 echo "--__--**^^**--__-- Finished setting up the environment! --__--**^^**--__--"
