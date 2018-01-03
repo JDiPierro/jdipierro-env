@@ -168,6 +168,20 @@ fi
 if [ ! -e "~/.curlrc" ]; then
   echo "Configuring Curl..."
   echo '-w "\n"' > ~/.curlrc
+  cat > ~/.tcurl-format <<EOM
+\n
+%{url_effective}:\n
+    time_namelookup:  %{time_namelookup}\n
+       time_connect:  %{time_connect}\n
+    time_appconnect:  %{time_appconnect}\n
+   time_pretransfer:  %{time_pretransfer}\n
+      time_redirect:  %{time_redirect}\n
+ time_starttransfer:  %{time_starttransfer}\n
+                    ----------\n
+         time_total:  %{time_total}\n
+       http_version:  %{http_version}\n
+          http_code:  %{http_code}\n
+EOM
 fi
 
 echo "--__--**^^**--__-- Finished setting up the environment! --__--**^^**--__--"
