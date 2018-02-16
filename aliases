@@ -13,6 +13,10 @@ alias myssh="cat ~/.ssh/id_rsa.pub"
 alias bell="tput bel"
 alias shrug="echo -n '¯\_(ツ)_/¯' | tee /dev/tty | pbcopy"
 alias tcurl="curl -w '@/Users/jdipierro/.tcurl-format'"
+alias myip="curl -w '' -s canhazip.com | tee /dev/tty | pbcopy"
+function msgbox() {
+  osascript -e 'tell app "System Events" to display dialog "'$1'"'
+}
 
 # iTerm 2
 # Press      ⌘,     to reach the preferences when iTerm is hidden from the OS.

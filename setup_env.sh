@@ -184,5 +184,12 @@ if [ ! -e "~/.curlrc" ]; then
 EOM
 fi
 
+if [ ! -e "~/.screenrc" ]; then
+  echo "Configuring Screen..."
+  cat > ~/.screenrc <<EOM
+hardstatus string "%{= KW} %H [%`] %{= Kw}|%{-} %-Lw%{= bW}%n%f %t%{-}%+Lw %=%C%a %Y-%M-%d"
+EOM
+fi
+
 echo "--__--**^^**--__-- Finished setting up the environment! --__--**^^**--__--"
 echo "__--__vv**vv__--__      Keep calm and Spork along!      __--__vv**vv__--__"

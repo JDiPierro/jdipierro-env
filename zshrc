@@ -4,7 +4,7 @@ export ZSH=${HOME}/.oh-my-zsh
 ZSH_THEME="jdipierro"
 COMPLETION_WAITING_DOTS="true"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
-plugins=(git autoenv docker python)
+plugins=(git autoenv docker python osx)
 
 source $ZSH/oh-my-zsh.sh
 
