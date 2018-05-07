@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # General
 alias c="/usr/bin/clear" # Typing the whole word is annoying
 alias clear="echo 'You just typed way too many letter! Next time just use \'c\'"
@@ -17,6 +19,7 @@ alias myip="curl -w '' -s canhazip.com | tee /dev/tty | pbcopy"
 function msgbox() {
   osascript -e 'tell app "System Events" to display dialog "'$1'"'
 }
+alias cat="bat"
 
 # iTerm 2
 # Press      ⌘,     to reach the preferences when iTerm is hidden from the OS.
@@ -93,3 +96,4 @@ alias dcb="docker-compose build"
 alias dca="docker-compose attach"
 alias dcphoenix="dcd && dcb && dcu"
 alias dcre="dcd && dcu"
+alias dps="docker ps"

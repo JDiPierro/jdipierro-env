@@ -123,6 +123,12 @@ install autoenv
 install thefuck
 install z
 
+# Install Bat (cat replacement with line nums and syntax highlighting)
+if [ -z $(which bat) ]; then
+  install_hosted bat git@github.com:sharkdp/bat.git
+  ln -s ${DIR}/hosted/bat/bat /usr/local/bin/bat
+fi
+
 # install virtualenv-burrito:
 if ! [ -d ~/.venvburrito ]; then
   $(curl -sL https://raw.githubusercontent.com/brainsik/virtualenv-burrito/master/virtualenv-burrito.sh | $SHELL > log/install_venvburrito 2>&1)
@@ -163,6 +169,7 @@ EOM
   git config --global core.excludesfile ~/.gitignore
   git config --global user.name Justin Dipierro
   git config --global user.email dipierroj@gmail.com
+  git config --global alias.fucked "push --force"
 fi
 
 if [ ! -e "~/.curlrc" ]; then
