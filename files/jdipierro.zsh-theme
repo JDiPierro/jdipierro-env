@@ -76,8 +76,10 @@ else
   PROMPT_PREFIX="%{$fg[cyan]%}$(hostname):%{$reset_color%}"
 fi
 
+source ~/Source/jdipierro_env/hosted/kube-ps1/kube-ps1.sh
+
 PROMPT='
-${PROMPT_PREFIX}%{$fg_bold[green]%}${PWD/#$HOME/~}%{$reset_color%}$(bureau_git_prompt) ⌚ %{$fg_bold[red]%}%*%{$reset_color%}
+${PROMPT_PREFIX}%{$fg_bold[green]%}${PWD/#$HOME/~}%{$reset_color%}$(bureau_git_prompt)$(kube_ps1) ⌚ %{$fg_bold[red]%}%*%{$reset_color%}
 $ '
 
 ZSH_THEME_GIT_PROMPT_PREFIX=" on %{$fg[magenta]%}⭠ "

@@ -14,12 +14,15 @@ alias showlines="sed -e '/^#/ d' -e '/^\s*$/ d'"
 alias myssh="cat ~/.ssh/id_rsa.pub"
 alias bell="tput bel"
 alias shrug="echo -n '¯\_(ツ)_/¯' | tee /dev/tty | pbcopy"
+alias lenny="echo -n '( ͡° ͜ʖ ͡°)' | tee /dev/tty | pbcopy"
 alias tcurl="curl -w '@/Users/jdipierro/.tcurl-format'"
 alias myip="curl -w '' -s canhazip.com | tee /dev/tty | pbcopy"
 function msgbox() {
   osascript -e 'tell app "System Events" to display dialog "'$1'"'
 }
 alias cat="bat"
+alias ls="exa -lsnew"
+
 
 # iTerm 2
 # Press      ⌘,     to reach the preferences when iTerm is hidden from the OS.
@@ -90,6 +93,7 @@ alias tat="terraform apply -target="
 
 # Docker
 alias dc="docker-compose"
+alias dcl="docker-compose -f docker-compose.yml -f docker-compose.local.yml"
 alias dcu="docker-compose up"
 alias dcd="docker-compose down"
 alias dcb="docker-compose build"
