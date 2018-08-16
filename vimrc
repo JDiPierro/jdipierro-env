@@ -7,8 +7,8 @@ set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
 
 " let Vundle manage Vundle, required
+Plugin 'VundleVim/Vundle.vim'
 Plugin 'bling/vim-airline'
-Plugin 'gmarik/Vundle.vim'
 Plugin 'heartsentwined/vim-emblem'
 Plugin 'kien/ctrlp.vim'
 Plugin 'mortice/pbcopy.vim'
@@ -18,7 +18,6 @@ Plugin 'tpope/vim-fugitive'
 Plugin 'elzr/vim-json'
 Plugin 'tpope/vim-surround'
 Plugin 'airblade/vim-gitgutter'
-Plugin 'saltstack/salt-vim'
 
 call vundle#end()            " required
 filetype plugin indent on    " required
@@ -27,7 +26,6 @@ syntax on
 """"""""""""""""""""""
 " General Vim Config
 """"""""""""""""""""""
-map <esc> :nohl<CR>
 set clipboard=unnamed
 let mapleader = ','
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip

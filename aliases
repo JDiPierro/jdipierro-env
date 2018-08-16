@@ -22,6 +22,7 @@ function msgbox() {
 }
 alias cat="bat"
 alias ls="exa -lsnew"
+alias watch="watch "  # This allows watch to be used with other aliases, such as `watch kgp` to watch the list of pods.
 
 
 # iTerm 2
@@ -86,7 +87,7 @@ function pack(){
 
 # Terraform
 alias tf="terraform"
-alias tp="terraform init && terraform get && terraform plan"
+alias tp="terraform get && terraform plan"
 alias tpt="terraform get && terraform plan -target="
 alias ta="terraform apply"
 alias tat="terraform apply -target="
@@ -101,3 +102,22 @@ alias dca="docker-compose attach"
 alias dcphoenix="dcd && dcb && dcu"
 alias dcre="dcd && dcu"
 alias dps="docker ps"
+
+# Kubernetes
+function kubereset() {
+  kubectx minikube
+  kubens default
+  echo "Kube Context and Namespace reset"
+}
+alias node_stats="kubectl get nodes --no-headers | grep Ready | grep node | awk '{print \$1}' | xargs -I {} sh -c 'echo {}; kubectl describe node {} | grep Allocated -A 5 | grep -ve Event -ve Allocated -ve percent -ve -- ; echo'"
+alias k="kubectl"
+alias ka="kubectl apply"
+alias kaf="kubectl apply -f"
+alias kah="kubectl apply -f ."
+alias kg="kubectl get"
+alias kd="kubectl describe"
+alias kgp="kubectl get pods"
+alias kgd="kubectl get deployments"
+alias kdp="kubectl describe pod"
+alias kdd="kubectl describe deployment"
+alias ktp="kubectl top pod"

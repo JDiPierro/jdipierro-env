@@ -1,0 +1,101 @@
+#!/usr/bin/env python
+
+"""
+Parse a CSV file and pretty-print it to console.
+Based on: https://stackoverflow.com/questions/20025235/how-to-pretty-print-a-csv-file-in-python/20025236#20025236
+
+Usage:
+  pretty_csv <filepath> [options]
+
+Options:
+    --new-delimiter=<new_delimiter>          The new column separator. [Default: |]
+    --no-header                              Disables the table headers from being displayed.
+    --no-border                              Disables the border on the pretty-printed table
+    --border-vertical=<border_v>             Character to be used as the vertical border [Default: |]
+    --border-horizontal=<border_h>           Character to be used as the hortizonal border [Default: -]
+    --border-corner=<border_c>               Character used for corners of the table [Default: +]
+"""
+
+import csv
+from docopt import docopt
+
+
+def pretty_file(args):
+    # function specific options
+    filename = args['<filepath>']
+    new_delimiter = " {} ".format(args['--new-delimiter'])
+    show_header = not args['--no-header']
+    draw_border = not args['--no-border']
+    border_vertical = args['--border-vertical']
+    border_horizontal = args['--border-horizontal']
+    border_corner = args['--border-corner']
+    newline = "\n"
+
+    column_max_width = {}  # { column number: max width of the column }
+    num_rows = 0  # the number of rows
+    output = []  # Output lines
+
+    # parse the file and determine the width of each column
+    with open(filename, "rb") as input_file:
+        reader = csv.reader(input_file)
+        for row in reader:
+            num_rows += 1
+            for col_number, column in enumerate(row):
+                width = len(column)
+                try:
+                    if width > column_max_width[col_number]:
+                        column_max_width[col_number] = width
+                except KeyError:
+                    column_max_width[col_number] = width
+
+    # the max number of columns (having rows with different number of columns is no problem)
+    max_columns = max(column_max_width.keys()) + 1
+
+    if max_columns > 1:
+        total_length = sum(column_max_width.values()) + len(new_delimiter) * (max_columns - 1)
+        if draw_border:
+            left = "{} ".format(border_vertical)
+            right = " {}".format(border_vertical)
+            left_corner = "{} ".format(border_corner)
+            right_corner = " {}".format(border_corner)
+        else:
+            left = right = left_corner = right_corner = ""
+
+        with open(filename, "rb") as input_file:
+            reader = csv.reader(input_file)
+            for row_number, row in enumerate(reader):
+                max_index = len(row) - 1
+                for index in range(max_columns):
+                    if index > max_index:
+                        # append empty columns
+                        row.append(' ' * column_max_width[index])
+                    else:
+                        diff = column_max_width[index] - len(row[index])
+                        # append spaces to fit the max width
+                        row[index] = row[index] + ' ' * diff
+
+                if draw_border and row_number == 0:
+                    # draw top border
+                    output.append("{}{}{}{}".format(
+                        left_corner, border_horizontal * total_length, right_corner, newline))
+                output.append("{}{}{}{}".format(left, new_delimiter.join(row), right, newline))
+                # print the new row
+                if show_header and row_number == 0:
+                    # draw header's separator
+                    output.append("{}{}{}{}".format(
+                        left_corner, border_horizontal * total_length, right, newline))
+                if draw_border and row_number == num_rows - 1:
+                    # draw bottom border
+                    output.append("{}{}{}".format(left_corner, border_horizontal * total_length, right_corner))
+
+    return ''.join(output)
+
+
+def main():
+    args = docopt(__doc__)
+    output = pretty_file(args)
+    print(output)
+
+
+if __name__ == "__main__":
+    main()

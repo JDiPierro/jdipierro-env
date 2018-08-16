@@ -77,6 +77,7 @@ else
 fi
 
 source ~/Source/jdipierro_env/hosted/kube-ps1/kube-ps1.sh
+KUBE_PS1_PREFIX=" ("
 
 PROMPT='
 ${PROMPT_PREFIX}%{$fg_bold[green]%}${PWD/#$HOME/~}%{$reset_color%}$(bureau_git_prompt)$(kube_ps1) ⌚ %{$fg_bold[red]%}%*%{$reset_color%}

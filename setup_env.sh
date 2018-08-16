@@ -116,7 +116,7 @@ if ! [ -d ~/.oh-my-zsh/ ]; then
   msg "Installing oh-my-zsh..."
   sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" > log/install_ohmyzsh 2>&1
   msg "Installing custom ZSH theme..."
-  cp ${DIR}/files/jdipierro.zsh-theme ~/.oh-my-zsh/themes/
+  ln -s  ${DIR}/files/jdipierro.zsh-theme ~/.oh-my-zsh/themes/
 fi
 install zsh-syntax-highlighting
 install autoenv
@@ -151,6 +151,13 @@ if ! cat ~/.zshrc | grep ${DIR} >/dev/null ; then
 source ${DIR}/zshrc
 source ${DIR}/aliases
 EOM
+fi
+
+if [ ! -e "~/.vimrc" ]; then
+  msg "Setting up VIM just the way you like it..."
+  git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+  ln -s ${DIR}/vimrc ~/.vimrc
+  cp ${DIR}/files/vividchalk.vim /usr/share/vim/vim74/colors/
 fi
 
 if [[ $(uname -a) == *Darwin* ]] && [ ! -f ~/Library/KeyBindings/DefaultKeyBinding.dict ]; then
@@ -200,6 +207,14 @@ if [ ! -e "~/.screenrc" ]; then
 hardstatus string "%{= KW} %H [%`] %{= Kw}|%{-} %-Lw%{= bW}%n%f %t%{-}%+Lw %=%C%a %Y-%M-%d"
 EOM
 fi
+
+echo "Syncing custom binaries into ~/bin ..."
+# Ensure our personal bin dir is present
+mkdir -p ~/bin
+# Mark all custom binaries as executable
+chmod -R +x ${DIR}/bin
+# Sync custom bins
+rsync -auv ${DIR}/bin/ ~/bin/
 
 echo "--__--**^^**--__-- Finished setting up the environment! --__--**^^**--__--"
 echo "__--__vv**vv__--__      Keep calm and Spork along!      __--__vv**vv__--__"
