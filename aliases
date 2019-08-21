@@ -23,7 +23,11 @@ function msgbox() {
 alias cat="bat"
 alias ls="exa -lsnew"
 alias watch="watch "  # This allows watch to be used with other aliases, such as `watch kgp` to watch the list of pods.
-
+function mkcdir ()
+{
+    mkdir -p -- "$1" &&
+      cd -P -- "$1"
+}
 
 # iTerm 2
 # Press      ⌘,     to reach the preferences when iTerm is hidden from the OS.
