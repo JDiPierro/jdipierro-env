@@ -65,7 +65,7 @@ function install() {
   msg "Installing ${PKG}..."
   case $(uname -a) in
     *Darwin* )
-      brew install ${PKG} > log/install_${PKG} 2>&1
+      brew list ${PKG} >/dev/null 2>&1 || brew install ${PKG} > log/install_${PKG} 2>&1
       return $?;;
     *fc[0-9][0-9]* )  # Fedora
       sudo yum install -y ${PKG} > log/install_${PKG} 2>&1
@@ -153,20 +153,22 @@ source ${DIR}/aliases
 EOM
 fi
 
-if [ ! -e "~/.vimrc" ]; then
+if [[ ! -f ~/.vimrc ]]; then
   msg "Setting up VIM just the way you like it..."
   git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
   ln -s ${DIR}/vimrc ~/.vimrc
-  cp ${DIR}/files/vividchalk.vim /usr/share/vim/vim74/colors/
+  mkdir -p ~/.vim/colors
+  cp ${DIR}/files/vividchalk.vim ~/.vim/colors/
+  vim +PluginInstall +qall
 fi
 
-if [[ $(uname -a) == *Darwin* ]] && [ ! -f ~/Library/KeyBindings/DefaultKeyBinding.dict ]; then
+if [[ $(uname -a) == *Darwin* ]] && [[ ! -f ~/Library/KeyBindings/DefaultKeyBinding.dict ]]; then
   msg "Fixing Mac's stupid Home and End keys..."
   mkdir -p ~/Library/KeyBindings/
   cp ${DIR}/files/Mac_home_end_keybindings.dict ~/Library/KeyBindings/DefaultKeyBinding.dict
 fi
 
-if [ ! -e "~/.gitignore" ]; then
+if [[ ! -f ~/.gitignore ]]; then
   msg "Setting up global gitignore..."
   cat > ~/.gitignore <<-EOM
 # IntelliJ Project files
@@ -182,7 +184,7 @@ EOM
   git config --global alias.fucked "push --force"
 fi
 
-if [ ! -e "~/.curlrc" ]; then
+if [[ ! -f ~/.curlrc ]]; then
   echo "Configuring Curl..."
   echo '-w "\n"' > ~/.curlrc
   cat > ~/.tcurl-format <<EOM
@@ -201,10 +203,10 @@ if [ ! -e "~/.curlrc" ]; then
 EOM
 fi
 
-if [ ! -e "~/.screenrc" ]; then
+if [[ ! -f ~/.screenrc ]]; then
   echo "Configuring Screen..."
   cat > ~/.screenrc <<EOM
-hardstatus string "%{= KW} %H [%`] %{= Kw}|%{-} %-Lw%{= bW}%n%f %t%{-}%+Lw %=%C%a %Y-%M-%d"
+hardstatus string "%{= KW} %H [%] %{= Kw}|%{-} %-Lw%{= bW}%n%f %t%{-}%+Lw %=%C%a %Y-%M-%d"
 EOM
 fi
 
@@ -214,7 +216,7 @@ mkdir -p ~/bin
 # Mark all custom binaries as executable
 chmod -R +x ${DIR}/bin
 # Sync custom bins
-rsync -auv ${DIR}/bin/ ~/bin/
+rsync -auv ${DIR}/bin/ ~/bin/ > log/rsync_bins
 
 echo "--__--**^^**--__-- Finished setting up the environment! --__--**^^**--__--"
 echo "__--__vv**vv__--__      Keep calm and Spork along!      __--__vv**vv__--__"
