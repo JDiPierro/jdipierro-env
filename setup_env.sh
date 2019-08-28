@@ -5,8 +5,8 @@ FerretWithASpork's Environment Initializer
                                             ,,_
                                 g@L  ,     ,J@[Q@.,,gD*%k        ,,
                                J@QFS@*%kw#SE@p ;; @P    ?@,    ,@E2k
-         ,^^^^^^^.              ^@2@E  SE^@Q@    {P.,w,  SBB@BP*.@U@.
-        ;@ VVVVV B@L              JULg@kBFSE      @@*^%Zk?*    ,#E@F
+         ,A A A A.              ^@2@E  SE^@Q@    {P.,w,  SBB@BP*.@U@.
+        ;@ V V V B@L              JULg@kBFSE      @@*^%Zk?*    ,#E@F
      ,gg@.        SL              JF   Sk       .F 3.,gF:L    4@@*;
     @F;?1        JP           ;ggg@z   F{       @L.    cz@      *4@.,
     SL  @.     ,@F            @P; JSL  QE       ?L3w.@@.@F         3@.
@@ -90,7 +90,7 @@ function install_hosted() {
   mkdir -p ${DIR}/hosted
   if [ ! -d "${DIR}/hosted/${HOSTED_PKG}" ]; then
     msg "Installing ${HOSTED_PKG}..."
-    git clone ${GIT_URL} ${DIR}/hosted/${HOSTED_PKG} > log/install_${HOSTED_PKG} 2>&1
+    git clone ${GIT_URL} ${DIR}/hosted/${HOSTED_PKG} --depth=1 > log/install_${HOSTED_PKG} 2>&1
   fi
 }
 
@@ -166,6 +166,14 @@ if [[ $(uname -a) == *Darwin* ]] && [[ ! -f ~/Library/KeyBindings/DefaultKeyBind
   msg "Fixing Mac's stupid Home and End keys..."
   mkdir -p ~/Library/KeyBindings/
   cp ${DIR}/files/Mac_home_end_keybindings.dict ~/Library/KeyBindings/DefaultKeyBinding.dict
+fi
+
+
+if [[ ! -d ${DIR}/hosted/powerline-fonts ]]; then
+  msg "Patching fonts for powerline"
+  install_hosted powerline-fonts https://github.com/powerline/fonts.git
+  chmod +x ${DIR}/hosted/powerline-fonts/install.sh
+  bash ${DIR}/hosted/powerline-fonts/install.sh > ./log/powerline-fonts_install-script
 fi
 
 if [[ ! -f ~/.gitignore ]]; then
