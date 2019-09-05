@@ -122,6 +122,7 @@ install zsh-syntax-highlighting
 install autoenv
 install thefuck
 install z
+install lolcat
 
 # Install kubernetes PS1 info script:
 install_hosted kube-ps1 git@github.com:jonmosco/kube-ps1.git
