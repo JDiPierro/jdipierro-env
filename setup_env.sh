@@ -106,7 +106,7 @@ mkdir log
 if [ $(uname) == *Darwin* ]; then
   if ! brew --version > /dev/null 2>&1; then
     msg "Installing Homebrew..."
-    /usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)" > log/install_homebrew 2>&1
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" > log/install_homebrew 2>&1
   fi
 fi
 
@@ -125,7 +125,7 @@ install z
 install lolcat
 
 # Install kubernetes PS1 info script:
-install_hosted kube-ps1 git@github.com:jonmosco/kube-ps1.git
+#install_hosted kube-ps1 git@github.com:jonmosco/kube-ps1.git
 
 # Install Bat (cat replacement with line nums and syntax highlighting)
 if [ -z $(which bat) ]; then
