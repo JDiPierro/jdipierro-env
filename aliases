@@ -124,3 +124,9 @@ alias kgd="kubectl get deployments"
 alias kdp="kubectl describe pod"
 alias kdd="kubectl describe deployment"
 alias ktp="kubectl top pod"
+
+if [[ "$(uname -s)" != "Darwin" ]]; then
+    pbcopy() {
+        printf '\033]52;c;%s\a' "$(base64 | tr -d '\n')"
+    }
+fi
