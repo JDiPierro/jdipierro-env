@@ -84,49 +84,57 @@ function msg() {
 }
 
 DEBUG=
-function debug() { if [ "${DEBUG}" == "1" ]; then msg $1; fi }
+function debug() { if [[ "${DEBUG}" == "1" ]]; then msg "$1"; fi }
 debug "Debugging Enabled"
 
 function install() {
-  PKG=$1
-  if [ "$2" == "1" ] && [ $? ]; then
-    debug "${PKG} detected by custom test"
-    return
-  elif [ "$2" == "2" ]; then
-    debug "Skipping check"
-  elif which ${PKG} > /dev/null 2>&1; then
-    debug "${PKG} detected by which"
+  local package="$1"
+  local install_log="${LOG_DIR}/install_${package}"
+
+  if command -v "${package}" >/dev/null 2>&1; then
+    debug "${package} detected in PATH"
     return
   fi
-  msg "Installing ${PKG}..."
+
+  msg "Installing ${package}..."
   case "${OS_FAMILY}" in
     macos)
-      brew list ${PKG} >/dev/null 2>&1 || brew install ${PKG} > "${LOG_DIR}/install_${PKG}" 2>&1
-      return $?;;
+      brew list "${package}" >/dev/null 2>&1 || brew install "${package}" > "${install_log}" 2>&1
+      ;;
     fedora)
-      sudo yum install -y ${PKG} > "${LOG_DIR}/install_${PKG}" 2>&1
-      return $?;;
+      sudo dnf install -y "${package}" > "${install_log}" 2>&1
+      ;;
     debian)
-      sudo apt-get install -y -o DPkg::Options::=--force-confold "${PKG}" > "${LOG_DIR}/install_${PKG}" 2>&1
-      return $?;;
+      sudo apt-get install -y -o DPkg::Options::=--force-confold "${package}" > "${install_log}" 2>&1
+      ;;
     *)
       msg "ERROR: Don't know how to install on this system."
-      exit 1;;
+      exit 1
+      ;;
   esac
-  if [ "$?" ]; then
-    debug "Error installing ${PKG}. Please attempt to fix manually."
+  local status="$?"
+
+  if [[ "${status}" -ne 0 ]]; then
+    msg "ERROR: Could not install ${package}. See ${install_log}."
     exit 1
   fi
+
   msg "Done, moving on..."
 }
 
 function install_hosted() {
-  HOSTED_PKG=$1
-  GIT_URL=$2
-  mkdir -p ${DIR}/hosted
-  if [ ! -d "${DIR}/hosted/${HOSTED_PKG}" ]; then
-    msg "Installing ${HOSTED_PKG}..."
-    git clone ${GIT_URL} ${DIR}/hosted/${HOSTED_PKG} --depth=1 > "${LOG_DIR}/install_${HOSTED_PKG}" 2>&1
+  local hosted_package="$1"
+  local git_url="$2"
+  local install_dir="${DIR}/hosted/${hosted_package}"
+  local install_log="${LOG_DIR}/install_${hosted_package}"
+
+  mkdir -p "${DIR}/hosted"
+  if [[ ! -d "${install_dir}" ]]; then
+    msg "Installing ${hosted_package}..."
+    if ! git clone "${git_url}" "${install_dir}" --depth=1 > "${install_log}" 2>&1; then
+      msg "ERROR: Could not install ${hosted_package}. See ${install_log}."
+      exit 1
+    fi
   fi
 }
 
