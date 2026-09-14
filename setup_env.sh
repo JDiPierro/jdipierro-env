@@ -144,10 +144,37 @@ function install_hosted() {
 
 # Make sure Homebrew is installed if we're on a mac.
 if [[ "${OS_FAMILY}" == "macos" ]]; then
-  if ! brew --version > /dev/null 2>&1; then
+  function load_homebrew() {
+    local brew_binary
+
+    if command -v brew >/dev/null 2>&1; then
+      return
+    fi
+
+    for brew_binary in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+      if [[ -x "${brew_binary}" ]]; then
+        eval "$("${brew_binary}" shellenv)"
+        return
+      fi
+    done
+
+    return 1
+  }
+
+  if ! load_homebrew; then
     msg "Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" > "${LOG_DIR}/install_homebrew" 2>&1
+    if ! /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" > "${LOG_DIR}/install_homebrew" 2>&1; then
+      msg "ERROR: Could not install Homebrew. See ${LOG_DIR}/install_homebrew."
+      exit 1
+    fi
+
+    if ! load_homebrew; then
+      msg "ERROR: Homebrew was installed but could not be added to PATH."
+      exit 1
+    fi
   fi
+
+  unset -f load_homebrew
 fi
 
 # Set up awesome things
