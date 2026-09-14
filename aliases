@@ -46,10 +46,6 @@ alias glast="git log -3 --graph --pretty=tformat:'%C(bold blue)<%an> %Cgreen(%cr
 alias use_the_force="git push --force"
 alias gundo="git reset HEAD@{1}"
 
-# Python
-alias mkvenv='mkvirtualenv'
-alias sniff='nosetests'
-
 # Terraform
 alias tf="terraform"
 alias tp="terraform get && terraform plan"

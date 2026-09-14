@@ -132,11 +132,6 @@ if [ -z $(which bat) ]; then
   ln -s ${DIR}/hosted/bat/bat /usr/local/bin/bat
 fi
 
-# install virtualenv-burrito:
-if ! [ -d ~/.venvburrito ]; then
-  $(curl -sL https://raw.githubusercontent.com/brainsik/virtualenv-burrito/master/virtualenv-burrito.sh | $SHELL > log/install_venvburrito 2>&1)
-fi
-
 if [ ! -f ~/.config/flake8 ]; then
   msg "Fuck up Pep8"
   cat > ~/.config/flake8 <<-EOM

@@ -5,7 +5,7 @@ export ZSH=${HOME}/.oh-my-zsh
 ZSH_THEME="jdipierro"
 COMPLETION_WAITING_DOTS="true"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
-plugins=(git docker python)
+plugins=(git docker)
 
 # Add my custom bin directory
 export PATH="$PATH:/Users/jdipierro/bin"
@@ -15,7 +15,6 @@ source $ZSH/oh-my-zsh.sh
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 . /usr/local/etc/profile.d/z.sh
 
-source ${HOME}/.venvburrito/startup.sh
 source <(kubectl completion zsh)
 
 if [[ -f ${HOME}/.aliases ]]; then
