@@ -200,13 +200,5 @@ if [[ ! -f ~/.curlrc ]]; then
 EOM
 fi
 
-echo "Syncing custom binaries into ~/bin ..."
-# Ensure our personal bin dir is present
-mkdir -p ~/bin
-# Mark all custom binaries as executable
-chmod -R +x ${DIR}/bin
-# Sync custom bins
-rsync -auv ${DIR}/bin/ ~/bin/ > log/rsync_bins
-
 echo "--__--**^^**--__-- Finished setting up the environment! --__--**^^**--__--"
 echo "__--__vv**vv__--__      Keep calm and Spork along!      __--__vv**vv__--__"
