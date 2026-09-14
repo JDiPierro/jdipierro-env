@@ -200,13 +200,6 @@ if [[ ! -f ~/.curlrc ]]; then
 EOM
 fi
 
-if [[ ! -f ~/.screenrc ]]; then
-  echo "Configuring Screen..."
-  cat > ~/.screenrc <<EOM
-hardstatus string "%{= KW} %H [%] %{= Kw}|%{-} %-Lw%{= bW}%n%f %t%{-}%+Lw %=%C%a %Y-%M-%d"
-EOM
-fi
-
 echo "Syncing custom binaries into ~/bin ..."
 # Ensure our personal bin dir is present
 mkdir -p ~/bin
