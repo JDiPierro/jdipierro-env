@@ -47,6 +47,38 @@ LOG_DIR="${DIR}/log"
 mkdir -p "${LOG_DIR}"
 : > "${LOG_DIR}/run.log"
 
+function detect_os() {
+  case "$(uname -s)" in
+    Darwin)
+      OS_FAMILY="macos"
+      ;;
+    Linux)
+      if [[ ! -r /etc/os-release ]]; then
+        echo "ERROR: Cannot identify this Linux distribution (missing /etc/os-release)."
+        exit 1
+      fi
+
+      source /etc/os-release
+      case "${ID:-} ${ID_LIKE:-}" in
+        *debian*|*ubuntu*) OS_FAMILY="debian" ;;
+        *fedora*|*rhel*|*centos*) OS_FAMILY="fedora" ;;
+        *)
+          echo "ERROR: Unsupported Linux distribution: ${PRETTY_NAME:-${ID:-unknown}}"
+          echo "You'll have to teach the ferret about this one."
+          exit 1
+          ;;
+      esac
+      ;;
+    *)
+      echo "ERROR: Unsupported OS: $(uname -s)"
+      echo "You'll have to teach the ferret about this one."
+      exit 1
+      ;;
+  esac
+}
+
+detect_os
+
 function msg() {
   echo "$1" | tee -a "${LOG_DIR}/run.log"
 }
@@ -67,17 +99,17 @@ function install() {
     return
   fi
   msg "Installing ${PKG}..."
-  case $(uname -a) in
-    *Darwin* )
+  case "${OS_FAMILY}" in
+    macos)
       brew list ${PKG} >/dev/null 2>&1 || brew install ${PKG} > "${LOG_DIR}/install_${PKG}" 2>&1
       return $?;;
-    *fc[0-9][0-9]* )  # Fedora
+    fedora)
       sudo yum install -y ${PKG} > "${LOG_DIR}/install_${PKG}" 2>&1
       return $?;;
-    *Ubuntu* )
+    debian)
       sudo apt-get install -y -o DPkg::Options::=--force-confold "${PKG}" > "${LOG_DIR}/install_${PKG}" 2>&1
       return $?;;
-    * )
+    *)
       msg "ERROR: Don't know how to install on this system."
       exit 1;;
   esac
@@ -103,7 +135,7 @@ function install_hosted() {
 ############
 
 # Make sure Homebrew is installed if we're on a mac.
-if [ $(uname) == *Darwin* ]; then
+if [[ "${OS_FAMILY}" == "macos" ]]; then
   if ! brew --version > /dev/null 2>&1; then
     msg "Installing Homebrew..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" > "${LOG_DIR}/install_homebrew" 2>&1
@@ -151,7 +183,7 @@ if [[ ! -f ~/.vimrc ]]; then
   vim +PluginInstall +qall
 fi
 
-if [[ $(uname -a) == *Darwin* ]] && [[ ! -f ~/Library/KeyBindings/DefaultKeyBinding.dict ]]; then
+if [[ "${OS_FAMILY}" == "macos" ]] && [[ ! -f ~/Library/KeyBindings/DefaultKeyBinding.dict ]]; then
   msg "Fixing Mac's stupid Home and End keys..."
   mkdir -p ~/Library/KeyBindings/
   cp ${DIR}/files/Mac_home_end_keybindings.dict ~/Library/KeyBindings/DefaultKeyBinding.dict
