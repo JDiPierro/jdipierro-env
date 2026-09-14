@@ -1,24 +1,46 @@
-export HOME=$(cd ~ && pwd)
-export HOSTED_DIR=${HOME}/Source/jdipierro_env/hosted
-export ZSH=${HOME}/.oh-my-zsh
+export JDI_ENV_DIR="${${(%):-%N}:A:h}"
+export ZSH="${HOME}/.oh-my-zsh"
 
 ZSH_THEME="jdipierro"
 COMPLETION_WAITING_DOTS="true"
 DISABLE_UNTRACKED_FILES_DIRTY="true"
-plugins=(git autoenv docker python)
+plugins=(git docker)
 
 # Add my custom bin directory
-export PATH="$PATH:/Users/jdipierro/bin"
+export PATH="${PATH}:${HOME}/bin"
 
-source $ZSH/oh-my-zsh.sh
+function source_first_available() {
+  local config_file
+  for config_file in "$@"; do
+    if [[ -r "${config_file}" ]]; then
+      source "${config_file}"
+      return
+    fi
+  done
+}
 
-export VAGRANT_DEFAULT_PROVIDER="virtualbox"
+source_first_available "${ZSH}/oh-my-zsh.sh"
 
-source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-. /usr/local/etc/profile.d/z.sh
+BREW_PREFIX=
+if command -v brew >/dev/null 2>&1; then
+  BREW_PREFIX="$(brew --prefix 2>/dev/null)"
+fi
 
-source ${HOME}/.venvburrito/startup.sh
-source <(kubectl completion zsh)
+source_first_available \
+  "${BREW_PREFIX:+${BREW_PREFIX}/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh}" \
+  /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+
+source_first_available \
+  "${BREW_PREFIX:+${BREW_PREFIX}/etc/profile.d/z.sh}" \
+  /usr/share/z/z.sh \
+  /usr/share/zsh/scripts/z.sh
+
+unset BREW_PREFIX
+unfunction source_first_available
+
+if command -v kubectl >/dev/null 2>&1; then
+  source <(kubectl completion zsh)
+fi
 
 if [[ -f ${HOME}/.aliases ]]; then
   source ${HOME}/.aliases

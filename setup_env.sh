@@ -42,55 +42,99 @@ FerretWithASpork's Environment Initializer
 EOM
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+LOG_DIR="${DIR}/log"
+
+mkdir -p "${LOG_DIR}"
+: > "${LOG_DIR}/run.log"
+
+function detect_os() {
+  case "$(uname -s)" in
+    Darwin)
+      OS_FAMILY="macos"
+      ;;
+    Linux)
+      if [[ ! -r /etc/os-release ]]; then
+        echo "ERROR: Cannot identify this Linux distribution (missing /etc/os-release)."
+        exit 1
+      fi
+
+      source /etc/os-release
+      case "${ID:-} ${ID_LIKE:-}" in
+        *debian*|*ubuntu*) OS_FAMILY="debian" ;;
+        *fedora*|*rhel*|*centos*) OS_FAMILY="fedora" ;;
+        *)
+          echo "ERROR: Unsupported Linux distribution: ${PRETTY_NAME:-${ID:-unknown}}"
+          echo "You'll have to teach the ferret about this one."
+          exit 1
+          ;;
+      esac
+      ;;
+    *)
+      echo "ERROR: Unsupported OS: $(uname -s)"
+      echo "You'll have to teach the ferret about this one."
+      exit 1
+      ;;
+  esac
+}
+
+detect_os
 
 function msg() {
-  echo $1 | tee -a ${DIR}/log/run.log
+  echo "$1" | tee -a "${LOG_DIR}/run.log"
 }
 
 DEBUG=
-function debug() { if [ "${DEBUG}" == "1" ]; then msg $1; fi }
+function debug() { if [[ "${DEBUG}" == "1" ]]; then msg "$1"; fi }
 debug "Debugging Enabled"
 
 function install() {
-  PKG=$1
-  if [ "$2" == "1" ] && [ $? ]; then
-    debug "${PKG} detected by custom test"
-    return
-  elif [ "$2" == "2" ]; then
-    debug "Skipping check"
-  elif which ${PKG} > /dev/null 2>&1; then
-    debug "${PKG} detected by which"
+  local package="$1"
+  local install_log="${LOG_DIR}/install_${package}"
+
+  if command -v "${package}" >/dev/null 2>&1; then
+    debug "${package} detected in PATH"
     return
   fi
-  msg "Installing ${PKG}..."
-  case $(uname -a) in
-    *Darwin* )
-      brew list ${PKG} >/dev/null 2>&1 || brew install ${PKG} > log/install_${PKG} 2>&1
-      return $?;;
-    *fc[0-9][0-9]* )  # Fedora
-      sudo yum install -y ${PKG} > log/install_${PKG} 2>&1
-      return $?;;
-    *Ubuntu* )
-      sudo apt-get install -y -o DPkg::Options::=--force-confold "${PKG}" > log/install_${PKG} 2>&1
-      return $?;;
-    * )
+
+  msg "Installing ${package}..."
+  case "${OS_FAMILY}" in
+    macos)
+      brew list "${package}" >/dev/null 2>&1 || brew install "${package}" > "${install_log}" 2>&1
+      ;;
+    fedora)
+      sudo dnf install -y "${package}" > "${install_log}" 2>&1
+      ;;
+    debian)
+      sudo apt-get install -y -o DPkg::Options::=--force-confold "${package}" > "${install_log}" 2>&1
+      ;;
+    *)
       msg "ERROR: Don't know how to install on this system."
-      exit 1;;
+      exit 1
+      ;;
   esac
-  if [ "$?" ]; then
-    debug "Error installing ${PKG}. Please attempt to fix manually."
+  local status="$?"
+
+  if [[ "${status}" -ne 0 ]]; then
+    msg "ERROR: Could not install ${package}. See ${install_log}."
     exit 1
   fi
+
   msg "Done, moving on..."
 }
 
 function install_hosted() {
-  HOSTED_PKG=$1
-  GIT_URL=$2
-  mkdir -p ${DIR}/hosted
-  if [ ! -d "${DIR}/hosted/${HOSTED_PKG}" ]; then
-    msg "Installing ${HOSTED_PKG}..."
-    git clone ${GIT_URL} ${DIR}/hosted/${HOSTED_PKG} --depth=1 > log/install_${HOSTED_PKG} 2>&1
+  local hosted_package="$1"
+  local git_url="$2"
+  local install_dir="${DIR}/hosted/${hosted_package}"
+  local install_log="${LOG_DIR}/install_${hosted_package}"
+
+  mkdir -p "${DIR}/hosted"
+  if [[ ! -d "${install_dir}" ]]; then
+    msg "Installing ${hosted_package}..."
+    if ! git clone "${git_url}" "${install_dir}" --depth=1 > "${install_log}" 2>&1; then
+      msg "ERROR: Could not install ${hosted_package}. See ${install_log}."
+      exit 1
+    fi
   fi
 }
 
@@ -98,45 +142,56 @@ function install_hosted() {
 ### MAIN ###
 ############
 
-# Delete last run log
-rm -rf log/ > /dev/null 2>&1
-mkdir log
-
 # Make sure Homebrew is installed if we're on a mac.
-if [ $(uname) == *Darwin* ]; then
-  if ! brew --version > /dev/null 2>&1; then
+if [[ "${OS_FAMILY}" == "macos" ]]; then
+  function load_homebrew() {
+    local brew_binary
+
+    if command -v brew >/dev/null 2>&1; then
+      return
+    fi
+
+    for brew_binary in /opt/homebrew/bin/brew /usr/local/bin/brew; do
+      if [[ -x "${brew_binary}" ]]; then
+        eval "$("${brew_binary}" shellenv)"
+        return
+      fi
+    done
+
+    return 1
+  }
+
+  if ! load_homebrew; then
     msg "Installing Homebrew..."
-    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" > log/install_homebrew 2>&1
+    if ! /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" > "${LOG_DIR}/install_homebrew" 2>&1; then
+      msg "ERROR: Could not install Homebrew. See ${LOG_DIR}/install_homebrew."
+      exit 1
+    fi
+
+    if ! load_homebrew; then
+      msg "ERROR: Homebrew was installed but could not be added to PATH."
+      exit 1
+    fi
   fi
+
+  unset -f load_homebrew
 fi
 
 # Set up awesome things
 install zsh
 if ! [ -d ~/.oh-my-zsh/ ]; then
   msg "Installing oh-my-zsh..."
-  sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" > log/install_ohmyzsh 2>&1
+  sh -c "$(curl -fsSL https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh)" > "${LOG_DIR}/install_ohmyzsh" 2>&1
   msg "Installing custom ZSH theme..."
   ln -s  ${DIR}/files/jdipierro.zsh-theme ~/.oh-my-zsh/themes/
 fi
 install zsh-syntax-highlighting
-install autoenv
 install thefuck
 install z
 install lolcat
 
 # Install kubernetes PS1 info script:
 #install_hosted kube-ps1 git@github.com:jonmosco/kube-ps1.git
-
-# Install Bat (cat replacement with line nums and syntax highlighting)
-if [ -z $(which bat) ]; then
-  install_hosted bat git@github.com:sharkdp/bat.git
-  ln -s ${DIR}/hosted/bat/bat /usr/local/bin/bat
-fi
-
-# install virtualenv-burrito:
-if ! [ -d ~/.venvburrito ]; then
-  $(curl -sL https://raw.githubusercontent.com/brainsik/virtualenv-burrito/master/virtualenv-burrito.sh | $SHELL > log/install_venvburrito 2>&1)
-fi
 
 if [ ! -f ~/.config/flake8 ]; then
   msg "Fuck up Pep8"
@@ -163,7 +218,7 @@ if [[ ! -f ~/.vimrc ]]; then
   vim +PluginInstall +qall
 fi
 
-if [[ $(uname -a) == *Darwin* ]] && [[ ! -f ~/Library/KeyBindings/DefaultKeyBinding.dict ]]; then
+if [[ "${OS_FAMILY}" == "macos" ]] && [[ ! -f ~/Library/KeyBindings/DefaultKeyBinding.dict ]]; then
   msg "Fixing Mac's stupid Home and End keys..."
   mkdir -p ~/Library/KeyBindings/
   cp ${DIR}/files/Mac_home_end_keybindings.dict ~/Library/KeyBindings/DefaultKeyBinding.dict
@@ -174,7 +229,7 @@ if [[ ! -d ${DIR}/hosted/powerline-fonts ]]; then
   msg "Patching fonts for powerline"
   install_hosted powerline-fonts https://github.com/powerline/fonts.git
   chmod +x ${DIR}/hosted/powerline-fonts/install.sh
-  bash ${DIR}/hosted/powerline-fonts/install.sh > ./log/powerline-fonts_install-script
+  bash ${DIR}/hosted/powerline-fonts/install.sh > "${LOG_DIR}/powerline-fonts_install-script"
 fi
 
 if [[ ! -f ~/.gitignore ]]; then
@@ -211,21 +266,6 @@ if [[ ! -f ~/.curlrc ]]; then
           http_code:  %{http_code}\n
 EOM
 fi
-
-if [[ ! -f ~/.screenrc ]]; then
-  echo "Configuring Screen..."
-  cat > ~/.screenrc <<EOM
-hardstatus string "%{= KW} %H [%] %{= Kw}|%{-} %-Lw%{= bW}%n%f %t%{-}%+Lw %=%C%a %Y-%M-%d"
-EOM
-fi
-
-echo "Syncing custom binaries into ~/bin ..."
-# Ensure our personal bin dir is present
-mkdir -p ~/bin
-# Mark all custom binaries as executable
-chmod -R +x ${DIR}/bin
-# Sync custom bins
-rsync -auv ${DIR}/bin/ ~/bin/ > log/rsync_bins
 
 echo "--__--**^^**--__-- Finished setting up the environment! --__--**^^**--__--"
 echo "__--__vv**vv__--__      Keep calm and Spork along!      __--__vv**vv__--__"

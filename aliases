@@ -4,23 +4,22 @@
 alias c="/usr/bin/clear" # Typing the whole word is annoying
 alias clear="echo 'You just typed way too many letter! Next time just use \'c\'"
 alias rzsh="source ~/.zshrc"
-alias editaliases="vi ~/Source/jdipierro_env/aliases"
+alias editaliases='vi "$JDI_ENV_DIR/aliases"'
 alias editzsh="vi ~/.zshrc"
 alias fuck='$(thefuck $(fc -ln -1))'
-function anon_ssh() {
-  ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no $1;
+function unsafe_ssh() {
+  ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no "$@"
 }
 alias showlines="sed -e '/^#/ d' -e '/^\s*$/ d'"
 alias myssh="cat ~/.ssh/id_rsa.pub"
 alias bell="tput bel"
 alias shrug="echo -n '¯\_(ツ)_/¯' | tee /dev/tty | pbcopy"
 alias lenny="echo -n '( ͡° ͜ʖ ͡°)' | tee /dev/tty | pbcopy"
-alias tcurl="curl -w '@/Users/jdipierro/.tcurl-format'"
+alias tcurl='curl -w "@$HOME/.tcurl-format"'
 alias myip="curl -w '' -s canhazip.com | tee /dev/tty | pbcopy"
 function msgbox() {
   osascript -e 'tell app "System Events" to display dialog "'$1'"'
 }
-alias cat="bat"
 alias watch="watch "  # This allows watch to be used with other aliases, such as `watch kgp` to watch the list of pods.
 function mkcdir ()
 {
@@ -46,48 +45,6 @@ alias glast="git log -3 --graph --pretty=tformat:'%C(bold blue)<%an> %Cgreen(%cr
 alias use_the_force="git push --force"
 alias gundo="git reset HEAD@{1}"
 
-# Vagrant
-alias v="vagrant status"
-alias vsh="vagrant ssh"
-alias vkill="vagrant halt"
-function vnuke() {
-  vagrant destroy -f $@ &&
-  bell
-}
-function vup() {
-  vagrant up $@ &&
-  bell
-}
-alias vpro="vagrant provision"
-alias vsalt="vagrant provision"
-alias vrunning="vagrant status | grep running"
-alias voff="vagrant status | grep 'not created'"
-alias vsnap="vagrant snapshot take"
-alias vback="vagrant snapshot back"
-function vphoenix() {
-  vnuke $@ &&
-  vup $@
-}
-
-
-# salt
-alias saltping="sudo salt '*' test.ping"
-alias salt='sudo salt'
-alias salt-run='sudo salt-run'
-alias salt-call='sudo salt-call'
-alias salt-cloud='sudo salt-cloud'
-
-# Python
-alias mkvenv='mkvirtualenv'
-alias sniff='nosetests'
-
-# Packer
-function pack(){
-  JSONFILE=$1
-  shift
-  jq '.["post-processors"][0] |= map(select(.type != "vagrant-gs"))' ${JSONFILE} | packer build -force $@ -
-}
-
 # Terraform
 alias tf="terraform"
 alias tp="terraform get && terraform plan"
@@ -96,12 +53,12 @@ alias ta="terraform apply"
 alias tat="terraform apply -target="
 
 # Docker
-alias dc="docker-compose"
-alias dcl="docker-compose -f docker-compose.yml -f docker-compose.local.yml"
-alias dcu="docker-compose up"
-alias dcd="docker-compose down"
-alias dcb="docker-compose build"
-alias dca="docker-compose attach"
+alias dc="docker compose"
+alias dcl="docker compose -f docker-compose.yml -f docker-compose.local.yml"
+alias dcu="docker compose up"
+alias dcd="docker compose down"
+alias dcb="docker compose build"
+alias dca="docker compose attach"
 alias dcphoenix="dcd && dcb && dcu"
 alias dcre="dcd && dcu"
 alias dps="docker ps"
