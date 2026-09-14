@@ -50,13 +50,6 @@ alias gundo="git reset HEAD@{1}"
 alias mkvenv='mkvirtualenv'
 alias sniff='nosetests'
 
-# Packer
-function pack(){
-  JSONFILE=$1
-  shift
-  jq '.["post-processors"][0] |= map(select(.type != "vagrant-gs"))' ${JSONFILE} | packer build -force $@ -
-}
-
 # Terraform
 alias tf="terraform"
 alias tp="terraform get && terraform plan"
