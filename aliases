@@ -20,7 +20,6 @@ alias myip="curl -w '' -s canhazip.com | tee /dev/tty | pbcopy"
 function msgbox() {
   osascript -e 'tell app "System Events" to display dialog "'$1'"'
 }
-alias cat="bat"
 alias watch="watch "  # This allows watch to be used with other aliases, such as `watch kgp` to watch the list of pods.
 function mkcdir ()
 {

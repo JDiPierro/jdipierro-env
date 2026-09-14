@@ -126,12 +126,6 @@ install lolcat
 # Install kubernetes PS1 info script:
 #install_hosted kube-ps1 git@github.com:jonmosco/kube-ps1.git
 
-# Install Bat (cat replacement with line nums and syntax highlighting)
-if [ -z $(which bat) ]; then
-  install_hosted bat git@github.com:sharkdp/bat.git
-  ln -s ${DIR}/hosted/bat/bat /usr/local/bin/bat
-fi
-
 if [ ! -f ~/.config/flake8 ]; then
   msg "Fuck up Pep8"
   cat > ~/.config/flake8 <<-EOM
