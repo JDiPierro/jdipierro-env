@@ -12,8 +12,6 @@ export PATH="$PATH:/Users/jdipierro/bin"
 
 source $ZSH/oh-my-zsh.sh
 
-export VAGRANT_DEFAULT_PROVIDER="virtualbox"
-
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 . /usr/local/etc/profile.d/z.sh
 
