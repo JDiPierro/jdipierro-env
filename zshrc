@@ -1,6 +1,5 @@
-export HOME=$(cd ~ && pwd)
-export HOSTED_DIR=${HOME}/Source/jdipierro_env/hosted
-export ZSH=${HOME}/.oh-my-zsh
+export JDI_ENV_DIR="${${(%):-%N}:A:h}"
+export ZSH="${HOME}/.oh-my-zsh"
 
 ZSH_THEME="jdipierro"
 COMPLETION_WAITING_DOTS="true"
@@ -8,7 +7,7 @@ DISABLE_UNTRACKED_FILES_DIRTY="true"
 plugins=(git docker)
 
 # Add my custom bin directory
-export PATH="$PATH:/Users/jdipierro/bin"
+export PATH="${PATH}:${HOME}/bin"
 
 source $ZSH/oh-my-zsh.sh
 
