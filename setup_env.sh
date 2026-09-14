@@ -119,7 +119,6 @@ if ! [ -d ~/.oh-my-zsh/ ]; then
   ln -s  ${DIR}/files/jdipierro.zsh-theme ~/.oh-my-zsh/themes/
 fi
 install zsh-syntax-highlighting
-install autoenv
 install thefuck
 install z
 install lolcat
