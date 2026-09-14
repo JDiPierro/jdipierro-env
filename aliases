@@ -46,13 +46,6 @@ alias glast="git log -3 --graph --pretty=tformat:'%C(bold blue)<%an> %Cgreen(%cr
 alias use_the_force="git push --force"
 alias gundo="git reset HEAD@{1}"
 
-# salt
-alias saltping="sudo salt '*' test.ping"
-alias salt='sudo salt'
-alias salt-run='sudo salt-run'
-alias salt-call='sudo salt-call'
-alias salt-cloud='sudo salt-cloud'
-
 # Python
 alias mkvenv='mkvirtualenv'
 alias sniff='nosetests'
